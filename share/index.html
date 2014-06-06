@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Court</title>
+
+    <meta charset="utf-8">
+    <meta name="description" content="Simple and flexible CI tool">
+
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" media="screen">
+
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.16/angular-route.min.js"></script>
+  </head>
+
+  <body>
+    <div class="navbar navbar-static-top navbar-inverse">
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Court</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="container" ng-view>
+      <p class="lead">Court is loading...</p>
+    </div>
+
+    <div style="display:none">
+      <div id="listOfBuildsTemplate">
+        <h1>Builds</h1>
+
+        <show-build ng-repeat="result in results" build="result"></show-build>
+      </div>
+
+      <div id="buildTemplate">
+        <ul class="list-group">
+          <li class="list-group-item" ng-class="{'list-group-item-success': build.succeed, 'list-group-item-danger': !build.succeed}">
+            <a ng-href="#/{{build.project_path}}">{{build.project_path}}</a>
+          </li>
+
+          <li class="list-group-item" ng-class="{'list-group-item-success': build.succeed, 'list-group-item-danger': !build.succeed}">
+            <span ng-show="showShortOutput">
+              <pre>{{shortOutput}}</pre>
+              <a style="cursor: pointer;" ng-click="toggleView()">Show more</a>
+            </span>
+            <span ng-hide="showShortOutput">
+              <pre>{{build.output}}</pre>
+              <a style="cursor: pointer;" ng-click="toggleView()">Show less</a>
+            </span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <script src="main.js"></script>
+  </body>
+</html>

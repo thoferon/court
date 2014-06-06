@@ -1,0 +1,13 @@
+PluginMap
+  [
+    ( "court"
+    , [ Plugin
+          { pluginExecutable = "sh"
+          , pluginArguments  =
+              [ "-c"
+              , "while true; do echo \"passed\\tto\\tbuilder\"; sleep 10; done"
+              ]
+          }
+      ]
+    )
+  ]
