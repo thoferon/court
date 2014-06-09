@@ -27,7 +27,12 @@
 
     <div style="display:none">
       <div id="listOfBuildsTemplate">
-        <h1>Builds</h1>
+        <h1>
+          Builds
+          <a ng-click="reloadBuilds()" style="cursor: pointer;">
+            <small>Refresh</small>
+          </a>
+        </h1>
 
         <show-build ng-repeat="result in results" build="result"></show-build>
       </div>
@@ -36,6 +41,7 @@
         <ul class="list-group">
           <li class="list-group-item" ng-class="{'list-group-item-success': build.succeed, 'list-group-item-danger': !build.succeed}">
             <a ng-href="#/{{build.project_path}}">{{build.project_path}}</a>
+            (<a ng-href="{{build.project_path}}">see folder</a>)
           </li>
 
           <li class="list-group-item" ng-class="{'list-group-item-success': build.succeed, 'list-group-item-danger': !build.succeed}">

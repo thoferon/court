@@ -23,6 +23,7 @@ import Court.Job
 import Court.Options
 import Court.Queue
 import Court.Result
+import Court.Utils
 
 builder :: Options -> TVar Queue -> IO ()
 builder opts queueTVar = builder' []
@@ -58,10 +59,10 @@ builder opts queueTVar = builder' []
 
 buildNext :: Options -> Job -> MVar () -> IO ()
 buildNext opts job mvar = handle errorHandler $ do
-    hPutStrLn stderr $ "Building " ++ jobProjectPath job ++ " ..."
-    (buildPath, stdout', processHandle) <- spawnBuild job
+    hPutStrLn stderr $ "Building " ++ show job ++ " ..."
+    (buildPath, outputPath, processHandle) <- spawnBuild job
     exitCode <- waitForProcess processHandle
-    output   <- hGetContents stdout'
+    output <- readFile outputPath
     let result = Result
           { resultExitCode = exitCode
           , resultOutput   = output
@@ -80,18 +81,21 @@ buildNext opts job mvar = handle errorHandler $ do
       hPutStrLn stderr $ "ERROR: " ++ show e
       putMVar mvar ()
 
-spawnBuild :: Job -> IO (FilePath, Handle, ProcessHandle)
+spawnBuild :: Job -> IO (FilePath, FilePath, ProcessHandle)
 spawnBuild job = do
   now <- getCurrentTime
   let buildDir       = "build." ++ formatTime defaultTimeLocale "%Y%m%d%H%M%S" now
       executablePath = jobProjectPath job </> "build"
       buildPath      = jobProjectPath job </> buildDir
+      outputPath     = buildPath </> "build.out"
   createDirectory buildPath
-  (stdin', stdout', stderr', processHandle) <-
-    runInteractiveProcess executablePath (jobArguments job) (Just buildPath) Nothing
-  hClose stdin'
-  hClose stderr'
-  return (buildPath, stdout', processHandle)
+  (inR,  inW) <- createPipeHandles
+  hClose inW
+  stdout' <- openFile outputPath ReadWriteMode
+  processHandle <- runProcess
+    executablePath (jobArguments job) (Just buildPath) Nothing
+     (Just inR) (Just stdout') Nothing
+  return (buildPath, outputPath, processHandle)
 
 cleanBuilds :: Int -> FilePath -> IO ()
 cleanBuilds n path = do

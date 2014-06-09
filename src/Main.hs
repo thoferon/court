@@ -1,5 +1,6 @@
 import Control.Concurrent
 
+import System.IO
 import System.Posix.Process
 import System.Posix.User
 
@@ -10,6 +11,7 @@ import Court.Queue
 
 main :: IO ()
 main = do
+  hSetBuffering stderr LineBuffering
   opts <- getOptions
 
   case optGroup opts of

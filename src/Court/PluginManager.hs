@@ -20,6 +20,7 @@ import Court.Job
 import Court.Options
 import Court.Plugin
 import Court.Queue
+import Court.Utils
 
 pluginManager :: Options -> TVar Queue -> IO ()
 pluginManager opts queueTVar = do
@@ -42,13 +43,16 @@ loadPluginMapOrDie path = do
 
 spawnPlugin :: FilePath -> Plugin -> IO RunningPlugin
 spawnPlugin path plugin = do
+  hPutStrLn stderr $ "Spawning " ++ show plugin ++ " in " ++ path ++ " ..."
   let args = pluginArguments plugin
-  (stdin', stdout', stderr', processHandle) <- runInteractiveProcess
+  (inR,  inW)   <- createPipeHandles
+  (outR, outW)  <- createPipeHandles
+  processHandle <- runProcess
     (pluginExecutable plugin) args (Just path) Nothing
-  hClose stdin'
-  hClose stderr'
+    (Just inR) (Just outW) Nothing
+  hClose inW
   return RunningPlugin
-    { runningPluginStdout  = stdout'
+    { runningPluginStdout  = outR
     , runningPluginProcess = processHandle
     , runningPluginOrigin  = (path, plugin)
     }
@@ -64,14 +68,15 @@ consumePlugins queueTVar runningPlugins = do
         checkReady <- hReady out
         when checkReady $ do
           line <- hGetLine out
-          addToQueue queueTVar Job
-            { jobProjectPath = fst $ runningPluginOrigin runningPlugin
-            , jobArguments   = readTabSeparatedList line
-            }
+          let job = Job
+                { jobProjectPath = fst $ runningPluginOrigin runningPlugin
+                , jobArguments   = readTabSeparatedList line
+                }
+          hPutStrLn stderr $ "Job added in the queue: " ++ show job
+          addToQueue queueTVar job
         return runningPlugin
 
-    let seconds = 1
-    threadDelay $ seconds * 1000 * 1000
+    threadDelay $ 1000 * 1000
     consumePlugins queueTVar runningPlugins'
 
   where

@@ -31,11 +31,6 @@ window.onload = function() {
                 });
         };
 
-        var reloadHandle = $interval($scope.reloadBuilds, 3000);
-        $scope.$on("$destroy", function() {
-            $interval.cancel(reloadHandle);
-        });
-
         $scope.reloadBuilds();
     });
 
