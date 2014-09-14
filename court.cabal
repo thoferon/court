@@ -4,6 +4,7 @@
 name:                court
 version:             0.1.0.0
 synopsis:            Simple and flexible CI system
+description:         Simple and flexible CI system.
 license:             BSD3
 license-file:        LICENSE
 author:              Thomas Feron
@@ -12,6 +13,8 @@ copyright:           Copyright (c) 2014, Thomas Feron
 category:            Development
 build-type:          Simple
 cabal-version:       >=1.10
+bug-reports:         http://hub.darcs.net/thoferon/court/issues
+homepage:            http://hub.darcs.net/thoferon/court
 
 data-files:          share/index.html
                    , share/main.js
@@ -32,7 +35,7 @@ executable court
                    , Court.Result
                    , Court.Utils
   build-depends:     base >=4.6 && <4.7
-                   , optparse-applicative
+                   , optparse-applicative ==0.9.*
                    , stm ==2.4.*
                    , process ==1.2.*
                    , filepath ==1.3.*
@@ -53,3 +56,8 @@ executable court-darcs-plugin
                    , filepath ==1.3.*
                    , directory ==1.2.*
                    , process ==1.2.*
+
+source-repository head
+  type:              darcs
+  location:          http://hub.darcs.net/thoferon/court
+  tag:               0.1.0.0
